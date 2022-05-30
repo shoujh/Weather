@@ -1,0 +1,123 @@
+﻿@{
+    ViewBag.Title = "Weather";
+}
+
+
+<h1>Provide Coordinates and Get Weather Forecast</h1>
+
+<div>
+    <strong>Latitude  :</strong><input id="txtLatitude" type="number" step="0.01" min="-90.0" max="90.0" />
+    <br />
+    <br />
+    <strong>Longitude :</strong><input id="txtLongitude" type="number" step="0.01" min="-180.0" max="180.0" />
+    <br />
+    <br />
+    <button id="btnSubmit">Get Weather Forecast</button>
+</div>
+
+
+<div>
+    <table>
+        <tr>
+            <td>
+                <strong>Latitude: </strong>
+                <label id="lblLat"></label><br />
+                <strong>Longitude: </strong>
+                <label id="lblLon"></label>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <strong>Average temperatures for following days: </strong><br />
+                <label id="lblD0"></label><br />
+                <label id="lblD1"></label><br />
+                <label id="lblD2"></label><br />
+                <label id="lblD3"></label><br />
+                <label id="lblD4"></label><br />
+                <label id="lblD5"></label><br />
+                <label id="lblD6"></label><br />
+            </td>
+        </tr>
+
+
+    </table>
+</div>
+<div>
+    <button style="display: none" id="file">Get file</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+
+    $(document).ready(function() {
+
+
+        function clear() {
+            $("#lblLat").text();
+            $("#lblLon").text('');
+            $("#lblLat").text('');
+            $("#lblD0").text('');
+            $("#lblD1").text('');
+            $("#lblD2").text('');
+            $("#lblD3").text('');
+            $("#lblD4").text('');
+            $("#lblD5").text('');
+            $("#lblD6").text('');
+            $('#file').hide();
+        }
+
+        $("#txtLatitude").change(function() {
+            clear();
+        })
+        $("#txtLongitude").change(function() {
+            clear();
+        })
+
+        $('#file').click(function() {
+            var latitudevalue = $("#txtLatitude").val();
+            var longitudevalue = $("#txtLongitude").val();
+            if (latitudevalue >= -90 && latitudevalue <= 90 && longitudevalue >= -180 && longitudevalue <= 180
+                && latitudevalue.length > 0 && longitudevalue.length > 0) {
+
+
+                location.href = "/Weather/DownloadFile?lon=" + longitudevalue + "&lat=" + latitudevalue;
+            }
+        })
+
+        $('#btnSubmit').click(function() {
+
+            var latitudevalue = $("#txtLatitude").val();
+            var longitudevalue = $("#txtLongitude").val();
+            if (latitudevalue >= -90 && latitudevalue <= 90 && longitudevalue >= -180 && longitudevalue <= 180
+                && latitudevalue.length > 0 && longitudevalue.length > 0) {
+                $.ajax({
+                    url: "Weather/WeatherDetail?lon=" + longitudevalue + "&lat=" + latitudevalue,
+                    type: "POST",
+                    success: function(rsltval) {
+                        $('#file').show();
+                        var data = JSON.parse(rsltval);
+                        console.log(data);
+                        $("#lblLat").text(data.Lat);
+                        $("#lblLon").text(data.Lon);
+                        $("#lblD0").text(data.Date[0] + ": " + data.DailyAverage[0]);
+                        $("#lblD1").text(data.Date[1] + ": " + data.DailyAverage[1]);
+                        $("#lblD2").text(data.Date[2] + ": " + data.DailyAverage[2]);
+                        $("#lblD3").text(data.Date[3] + ": " + data.DailyAverage[3]);
+                        $("#lblD4").text(data.Date[4] + ": " + data.DailyAverage[4]);
+                        $("#lblD5").text(data.Date[5] + ": " + data.DailyAverage[5]);
+                        $("#lblD6").text(data.Date[6] + ": " + data.DailyAverage[6]);
+                        //data - response from server
+                    },
+                    error: function() {
+
+                    }
+                });
+            }
+            else {
+                alert("Invalid coordinates!");
+            }
+        });
+    })
+
+</script> 
